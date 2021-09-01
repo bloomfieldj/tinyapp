@@ -48,8 +48,13 @@ const users = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
+  },
+  "user2RandomID": {
+    id: "user2RandomID", 
+    email: "test@test.ca", 
+    password: "123"
   }
-}
+};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -72,10 +77,16 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  const userID = req.cookies["user_id"]
   const templateVars = {
-    user: users[req.cookies["user_id"]]
+    user: users[userID]
   };
-  res.render("urls_new", templateVars);
+  if(userID in users){
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login")
+  }
+  
 });
 
 app.get("/urls/:shortURL", (req, res) => {
