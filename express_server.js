@@ -145,9 +145,28 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get("/urls/:shortURL/delete", (req, res) => {
+  const userID = req.cookies["user_id"]
+  const shortURL = req.params.shortURL;  
+  if(urlsForUser(userID, shortURL)){
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    res.status(400);
+    res.send("Access denied, URL not associated with this account.")
+  };
+});
+
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
+  const userID = req.cookies["user_id"]
+  const shortURL = req.params.shortURL;  
+  if(urlsForUser(userID, shortURL)){
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+      res.status(400);
+      res.send("Access denied, URL not associated with this account.")
+  }; 
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
@@ -156,7 +175,14 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.get("/urls/:shortURL/edit", (req, res) => {
-  res.redirect("/urls/:shortURL");
+  const userID = req.cookies["user_id"]
+  const shortURL = req.params.shortURL;  
+  if(urlsForUser(userID, shortURL)){
+    res.redirect("/urls/:shortURL")
+  } else {
+    res.status(400);
+    res.send("Access denied, URL not associated with this account.")
+  };
 });
 
 app.post("/logout", (req, res) => {
