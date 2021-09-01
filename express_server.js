@@ -10,6 +10,12 @@ const findUserByEmail = function(email){
   }
 }
 
+const urlsForUser = function(id, url){
+    if (url in urlDatabase && id === urlDatabase[url].userID){
+      return true;
+  }
+};
+
 app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -31,7 +37,6 @@ app.post("/urls", (req, res) => {
     users,
     user: users[userID]
   }
-  console.log(urlDatabase);
   res.render("urls_index", templateVars);
 });
 
@@ -51,7 +56,11 @@ const urlDatabase = {
   i3BoGr: {
       longURL: "https://www.google.ca",
       userID: "aJ48lW"
-  }
+  },
+  i3BoGw: {
+    longURL: "https://www.google.com",
+    userID: "aJ48kW"
+}
 };
 
 const users = { 
@@ -85,12 +94,19 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  const userID = req.cookies["user_id"]
   const templateVars = { 
     urls: urlDatabase, 
-    user: users[req.cookies["user_id"]],
+    user: users[userID],
     users
-   };
+  };
+  
+  if(userID){
   res.render("urls_index", templateVars);
+  } else {
+    res.status(403);
+    res.redirect("/login");
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -107,12 +123,21 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  const userID = req.cookies["user_id"]
+  const shortURL = req.params.shortURL;
   const templateVars = { 
-    shortURL: req.params.shortURL, 
+    shortURL: shortURL, 
     longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users[req.cookies["user_id"]]
+    user: users[userID]
   };
-  res.render("urls_show", templateVars);
+  
+  if(urlsForUser(userID, shortURL)){
+    res.render("urls_show", templateVars);
+  } else {
+    res.status(400);
+    res.send("Access denied, URL not associated with this account.")
+  }
+  
 });
  
 app.get("/u/:shortURL", (req, res) => {
