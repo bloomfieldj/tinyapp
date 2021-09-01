@@ -20,10 +20,27 @@ function generateRandomString() {
   return new Array(6).join().replace(/(.|$)/g, function(){return ((Math.random()*36)|0).toString(36)[Math.random()<.5?"toString":"toUpperCase"]();});
 }
 
+function generateRandomID() {
+  return new Array(8).join().replace(/(.|$)/g, function(){return ((Math.random()*36)|0).toString(36)[Math.random()<.5?"toString":"toUpperCase"]();});
+}
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -74,7 +91,6 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.get("/urls/:shortURL/edit", (req, res) => {
-  console.log(req.params);
   res.redirect("/urls/:shortURL");
 });
 
@@ -87,6 +103,31 @@ app.post("/logout", (req, res) => {
   res.clearCookie("username")
   res.redirect("/urls");
 });
+
+app.get("/register", (req, res) => {
+  const templateVars = { 
+    urls: urlDatabase, 
+    username: req.cookies["username"],
+   };
+  res.render("user_registration", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  console.log(req.body);
+  const newID = generateRandomID();
+
+  users[newID] = {
+    id: newID,
+    email: req.body.email,
+    password: req.body.password
+  }
+
+  res.cookie("user_id", newID);
+
+  console.log(users);
+  res.redirect("/urls");
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
