@@ -106,13 +106,6 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   res.redirect("/urls/:shortURL");
 });
 
-app.post("/login", (req, res) => {
-  const userEmail = req.body.email
-  const userID = findUserByEmail(userEmail);
-  res.cookie("user_id", userID )
-  res.redirect("/urls");
-});
-
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id")
   res.redirect("/urls");
@@ -156,6 +149,38 @@ app.post("/register", (req, res) => {
 
 });
 
+app.get("/login", (req, res) => {
+  const templateVars = { 
+    urls: urlDatabase, 
+    user: users[req.cookies["user_id"]]
+  };
+  res.render("user_login", templateVars);
+});
+
+app.post("/login", (req, res) => {
+  const userEmail = req.body.email;
+  const userID = findUserByEmail(userEmail); 
+  
+  const userInfo = {
+    user_id: userID,
+    email: userEmail,
+    password: req.body.password
+  }
+
+  if(!userID){
+    res.status(403);
+    res.send('Invalid email provided.');
+  }
+
+  if(userID && userInfo.password === users[userID].password){
+    res.cookie("user_id", userID);
+    res.redirect("/urls");    
+  } else {
+    res.status(403);
+    res.send('Invalid password provided.');
+
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
