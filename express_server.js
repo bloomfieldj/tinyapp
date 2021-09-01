@@ -13,7 +13,8 @@ const findUserByEmail = function(email){
 app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
+const e = require("express");
 app.use(cookieParser())
 
 app.post("/urls", (req, res) => {
@@ -126,17 +127,33 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const newID = generateRandomID();
-
-  users[newID] = {
-    user_id: newID,
+  const newUserID = generateRandomID();
+  const newUser = {
+    user_id: newUserID,
     email: req.body.email,
     password: req.body.password
   }
+  if(!newUser.email && !newUser.password){
+    res.status(400);
+    res.send('Invalid email and password provided.');
+  }
+  if(!newUser.email){
+    res.status(400);
+    res.send('Invalid email provided.');
+  }
+  if(!newUser.password){
+    res.status(400);
+    res.send('Invalid password provided.');
+  }
+  if(users[findUserByEmail(newUser.email)]){
+    res.status(400);
+    res.send('An account associated with this email address already exists.');
+  }
 
-  res.cookie("user_id", newID);
-
+  users[newUserID] = newUser;
+  res.cookie("user_id", newUserID);
   res.redirect("/urls");
+
 });
 
 
