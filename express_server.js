@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const bcrypt = require('bcrypt');
+
 
 const findUserByEmail = function(email){
   for(user in users){
@@ -67,17 +69,17 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    hashedPassword: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    hashedPassword: bcrypt.hashSync("dishwasher-funk", 10)
   },
   "aJ48lW": {
     id: "aJ48lW", 
     email: "test@test.ca", 
-    password: "123"
+    hashedPassword: bcrypt.hashSync("123", 10)
   }
 };
 
@@ -200,10 +202,11 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   const newUserID = generateRandomID();
+  const password = req.body.password
   const newUser = {
     user_id: newUserID,
     email: req.body.email,
-    password: req.body.password
+    hashedPassword: bcrypt.hashSync(password, 10)
   }
   if(!newUser.email && !newUser.password){
     res.status(400);
@@ -239,26 +242,24 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userID = findUserByEmail(userEmail); 
-  
+  const password = req.body.password
   const userInfo = {
     user_id: userID,
     email: userEmail,
-    password: req.body.password
+    hashedPassword: users[userID].hashedPassword,
   }
 
   if(!userID){
     res.status(403);
     res.send('Invalid email provided.');
   }
-
-  if(userID && userInfo.password === users[userID].password){
+  if(bcrypt.compareSync(password, userInfo.hashedPassword)){
     res.cookie("user_id", userID);
     res.redirect("/urls");    
   } else {
     res.status(403);
     res.send('Invalid password provided.');
-
-  }
+  } 
 });
 
 app.listen(PORT, () => {
