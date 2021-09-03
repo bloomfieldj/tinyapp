@@ -4,8 +4,6 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session')
 const bcrypt = require('bcrypt');
-const CryptoJS = require('crypto-js')
-const aes = CryptoJS.AES
 const {      
   getUserByEmail,  
   urlsForUser,
@@ -95,7 +93,6 @@ app.get("/urls", (req, res) => {
   });
 
 app.post("/urls", (req, res) => {
-  // console.log(req.body);  // Log the POST request body to the console
   const encryptedID = req.session.user_id;
   const decryptedID = decryptID(encryptedID);
   const longURL = req.body.longURL;
@@ -106,7 +103,7 @@ app.post("/urls", (req, res) => {
     user: users[decryptedID],
     users
   }
-  console.log(urlDatabase);
+
   res.render("urls_index", templateVars);
 });
   
@@ -262,8 +259,6 @@ app.post("/login", (req, res) => {
     email: userEmail,
     hashedPassword: users[decryptedID].hashedPassword,
   }
-
-  console.log(userInfo);
 
   if(!userID){
     res.status(403);

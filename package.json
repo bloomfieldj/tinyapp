@@ -1,7 +1,7 @@
 {
   "name": "tinyapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "My very own link shortener!",
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/nodemon -L express_server.js",
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/bloomfieldj/tinyapp.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Jonathon Bloomfield",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bloomfieldj/tinyapp/issues"
