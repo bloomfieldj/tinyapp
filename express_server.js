@@ -60,7 +60,7 @@ app.use(cookieSession({
 
 app.get("/", (req, res) => {
   const encryptedID = req.session.user_id;
-  if(encryptedID){
+  if(encryptedID) {
     res.redirect("/urls");
   } else {
     res.status(403);
@@ -68,18 +68,10 @@ app.get("/", (req, res) => {
   }
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 app.get("/urls", (req, res) => {
   const encryptedID = req.session.user_id;
   const decryptedID = decryptID(encryptedID);
-  if(encryptedID){
+  if(encryptedID) {
     const templateVars = { 
       urls: urlDatabase, 
       user: users[decryptedID],
@@ -103,7 +95,6 @@ app.post("/urls", (req, res) => {
     user: users[decryptedID],
     users
   }
-
   res.render("urls_index", templateVars);
 });
   
@@ -114,19 +105,18 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[decryptedID]
   };
-  if(decryptedID in users){
+  if(decryptedID in users) {
     res.render("urls_new", templateVars);
   } else {
-    res.redirect("/login")
+    res.redirect("/login");
   }
-  
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const encryptedID = req.session.user_id;
   const decryptedID = decryptID(encryptedID);
   const shortURL = req.params.shortURL;  
-  if(urlsForUser(decryptedID, shortURL, urlDatabase)){
+  if(urlsForUser(decryptedID, shortURL, urlDatabase)) {
     const templateVars = { 
       shortURL: shortURL, 
       longURL: urlDatabase[shortURL].longURL,
@@ -137,19 +127,14 @@ app.get("/urls/:shortURL", (req, res) => {
     res.status(400);
     res.send("Access denied, URL not associated with this account.")
   }
-
 });
  
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
-});
 
 app.get("/urls/:shortURL/delete", (req, res) => {
   const encryptedID = req.session.user_id;
   const decryptedID = decryptID(encryptedID);
   const shortURL = req.params.shortURL;  
-  if(urlsForUser(decryptedID, shortURL, urlDatabase)){
+  if(urlsForUser(decryptedID, shortURL, urlDatabase)) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
@@ -162,12 +147,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const encryptedID = req.session.user_id;
   const decryptedID = decryptID(encryptedID);
   const shortURL = req.params.shortURL;  
-  if(urlsForUser(decryptedID, shortURL, urlDatabase)){
+  if(urlsForUser(decryptedID, shortURL, urlDatabase)) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-      res.status(400);
-      res.send("Access denied, URL not associated with this account.")
+    res.status(400);
+    res.send("Access denied, URL not associated with this account.")
   }; 
 });
 
@@ -180,7 +165,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   const encryptedID = req.session.user_id;
   const decryptedID = decryptID(encryptedID);
   const shortURL = req.params.shortURL;
-  if(urlsForUser(decryptedID, shortURL, urlDatabase)){
+  if(urlsForUser(decryptedID, shortURL, urlDatabase)) {
     res.redirect("/urls/:shortURL")
   } else {
     res.status(400);
@@ -195,7 +180,7 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   const encryptedID = req.session.user_id;
-  if(encryptedID){
+  if(encryptedID) {
     res.redirect("/urls");
   } else {
     const decryptedID = decryptID(encryptedID);
@@ -205,7 +190,6 @@ app.get("/register", (req, res) => {
     };
     res.render("user_registration", templateVars);
   }
-
 });
 
 app.post("/register", (req, res) => {
@@ -216,27 +200,25 @@ app.post("/register", (req, res) => {
     email: req.body.email,
     hashedPassword: bcrypt.hashSync(password, 10)
   }
-  if(!newUser.email && !password){
+  if(!newUser.email && !password) {
     res.status(400);
     res.send('Invalid email and password provided.');
   }
-  if(!newUser.email){
+  if(!newUser.email) {
     res.status(400);
     res.send('Invalid email provided.');
   }
-  if(!password){
+  if(!password) {
     res.status(400);
     res.send('Invalid password provided.');
   }
-  if(users[getUserByEmail(newUser.email, users)]){
+  if(users[getUserByEmail(newUser.email, users)]) {
     res.status(400);
     res.send('An account associated with this email address already exists.');
   }
-
   users[newUserID] = newUser;
   req.session.user_id = encryptID(newUserID);
   res.redirect("/urls");
-
 });
 
 app.get("/login", (req, res) => {
@@ -252,25 +234,30 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {  
   const userEmail = req.body.email;
   const userID = getUserByEmail(userEmail, users); 
-  const password = req.body.password
-  const encryptedID = encryptID(userID)
-  const decryptedID = decryptID(encryptedID)
+  const password = req.body.password;
+  const encryptedID = encryptID(userID);
+  const decryptedID = decryptID(encryptedID);
   const userInfo = {
     email: userEmail,
     hashedPassword: users[decryptedID].hashedPassword,
   }
-
-  if(!userID){
+  
+  if(!userID) {
     res.status(403);
     res.send('Invalid email provided.');
   }
-  if(bcrypt.compareSync(password, userInfo.hashedPassword)){
+  if(bcrypt.compareSync(password, userInfo.hashedPassword)) {
     req.session.user_id = encryptedID;
     res.redirect("/urls");    
   } else {
     res.status(403);
     res.send('Invalid password provided.');
   } 
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
