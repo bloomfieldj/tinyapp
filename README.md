@@ -4,11 +4,11 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["Logging in!"]()
+!["Logging in!"](https://github.com/bloomfieldj/tinyapp/blob/master/docs/login.png?raw=true)
 
-![Signing up]()
+![Dashboard!](https://github.com/bloomfieldj/tinyapp/blob/master/docs/dashboard.png?raw=true)
 
-![Viewing a shortened link's properties]()
+![Viewing a shortened link's properties!](https://github.com/bloomfieldj/tinyapp/blob/master/docs/view.png?raw=true)
 
 ## Dependencies
 
